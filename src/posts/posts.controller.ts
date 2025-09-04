@@ -9,46 +9,46 @@ import {
   ParseIntPipe,
   Post,
   Put,
-  Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
-import type { Post as PostInterface } from './interfaces/post.interface';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { PostEntity } from './extities/post.entity';
 
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  //   @Get()
-  //   findAll() {
-  //     return this.postsService.findAll();
-  //   }
-
   @Get()
-  findAndQuery(@Query('search') search?: string): PostInterface[] {
-    const extractAllPost = this.postsService.findAll();
-    if (search) {
-      return extractAllPost.filter((singlePost) =>
-        singlePost.title
-          .toLocaleLowerCase()
-          .includes(search.toLocaleLowerCase()),
-      );
-    }
-    return extractAllPost;
+  findAll(): Promise<PostEntity[]> {
+    return this.postsService.findAll();
   }
 
+  // @Get()
+  // findAndQuery(@Query('search') search?: string): PostInterface[] {
+  //   const extractAllPost = this.postsService.findAll();
+  //   if (search) {
+  //     return extractAllPost.filter((singlePost) =>
+  //       singlePost.title
+  //         .toLocaleLowerCase()
+  //         .includes(search.toLocaleLowerCase()),
+  //     );
+  //   }
+  //   return extractAllPost;
+  // }
+
   @Get(':id')
-  findById(@Param('id', ParseIntPipe) id: number): PostInterface {
-    return this.postsService.findById(id);
+  async findById(@Param('id', ParseIntPipe) id: number) {
+    const post = await this.postsService.findByOne(id);
+    return post;
   }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UsePipes(ValidationPipe)
-  createPost(@Body() createPostData: CreatePostDto): PostInterface {
+  createPost(@Body() createPostData: CreatePostDto): Promise<PostEntity> {
     return this.postsService.create(createPostData);
   }
 
@@ -57,13 +57,13 @@ export class PostsController {
   updatePost(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateData: UpdatePostDto,
-  ): PostInterface {
+  ): Promise<PostEntity> {
     return this.postsService.updatePost(id, updateData);
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deletePost(@Param('id', ParseIntPipe) id: number): { message: string } {
+  deletePost(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.postsService.deletePost(id);
   }
 }

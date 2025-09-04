@@ -9,8 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { PostsModule } from './posts/posts.module';
-import Joi from 'joi';
 import appConfig from './config/app.config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { PostEntity } from './posts/extities/post.entity';
 
 @Module({
   imports: [
@@ -21,6 +22,16 @@ import appConfig from './config/app.config';
 
       // }),
       load: [appConfig],
+    }),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'Saran@1111',
+      database: 'posts',
+      entities: [PostEntity],
+      synchronize: true,
     }),
     CatsModule,
     AuthModule,
