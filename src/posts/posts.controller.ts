@@ -9,13 +9,15 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  UseFilters,
   UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostEntity } from './extities/post.entity';
+// import { ValidationPipe } from 'src/cats/validation/validation.pipe';
+// import { HttpExceptionFilter } from 'src/auth/exception-filter/http-exception.filter';
 
 @Controller('posts')
 export class PostsController {
@@ -47,7 +49,6 @@ export class PostsController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UsePipes(ValidationPipe)
   createPost(@Body() createPostData: CreatePostDto): Promise<PostEntity> {
     return this.postsService.create(createPostData);
   }

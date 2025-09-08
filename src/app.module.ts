@@ -3,8 +3,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CatsModule } from './cats/cats.module';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
-import { HttpExceptionFilter } from './auth/exception-filter/http-exception.filter';
-import { ValidationPipe } from './cats/validation/validation.pipe';
+// import { HttpExceptionFilter } from './auth/exception-filter/http-exception.filter';
+import { ValidationPipe } from './validation/validation.pipe';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
@@ -12,6 +12,7 @@ import { PostsModule } from './posts/posts.module';
 import appConfig from './config/app.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostEntity } from './posts/extities/post.entity';
+import { UserEntity } from './auth/entities/user.entity';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { PostEntity } from './posts/extities/post.entity';
       username: 'root',
       password: 'Saran@1111',
       database: 'posts',
-      entities: [PostEntity],
+      entities: [PostEntity, UserEntity],
       synchronize: true,
     }),
     CatsModule,
@@ -40,10 +41,10 @@ import { PostEntity } from './posts/extities/post.entity';
   ],
   controllers: [AppController],
   providers: [
-    {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
-    },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: HttpExceptionFilter,
+    // },
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,

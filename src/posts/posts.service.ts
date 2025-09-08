@@ -94,12 +94,11 @@ export class PostsService {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
 
-    if (updateData.content) {
-      findPostToUpdate.content = updateData.content;
-    }
-
-    if (updateData.authorName) {
-      findPostToUpdate.authorName = updateData.authorName;
+    // Update fields dynamically
+    for (const key in updateData) {
+      if (updateData[key] !== undefined) {
+        findPostToUpdate[key] = updateData[key];
+      }
     }
 
     return this.postRepository.save(findPostToUpdate);
