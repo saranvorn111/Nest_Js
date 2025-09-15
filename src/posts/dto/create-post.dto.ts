@@ -12,13 +12,14 @@ export class CreatePostDto {
   @Optional()
   @IsNotEmpty({ message: 'Content should not be empty' })
   @IsString({ message: 'Content must be a string' })
-  @MinLength(5, { message: 'Content must be at least 5 characters long' })
-  content?: string;
+  @MinLength(10, { message: 'Content must be at least 10 characters long' })
+  @MaxLength(500, { message: 'Content must be at most 500 characters long' })
+  content: string;
 
-  @Optional()
-  @IsNotEmpty({ message: 'Author name should not be empty' })
-  @IsString({ message: 'Author name must be a string' })
-  @MinLength(2, { message: 'Author name must be at least 2 characters long' })
-  @MaxLength(25, { message: 'Author name must be at most 25 characters long' })
-  authorName?: string;
+  // @Optional()
+  // @IsNotEmpty({ message: 'Author name should not be empty' })
+  // @IsString({ message: 'Author name must be a string' })
+  // @MinLength(2, { message: 'Author name must be at least 2 characters long' })
+  // @MaxLength(25, { message: 'Author name must be at most 25 characters long' })
+  // authorName?: string;
 }

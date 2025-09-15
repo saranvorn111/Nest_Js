@@ -33,7 +33,15 @@ export class AuthService {
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
     private jwtService: JwtService,
-  ) {}
+  ) {
+    bcrypt.hash('admin1111', 10, (err, hash) => {
+      if (err) {
+        console.error('Error hashing password:', err);
+      } else {
+        console.log('Hashed password:', hash);
+      }
+    });
+  }
 
   //user
   async register(registerDto: RegisterDto) {
@@ -95,6 +103,7 @@ export class AuthService {
   }
 
   //login
+  //login
   async login(loginDto: LoginDto) {
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
@@ -106,7 +115,8 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    const tokens = this.generateTokens(user);
+    //generate token
+    const tokens = await this.generateTokens(user);
     const { password, ...result } = user;
     return {
       user: result,
@@ -135,7 +145,17 @@ export class AuthService {
   }
 
   //find current user by Id
-  //do leater
+
+  async validateUserById(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const { password, ...result } = user;
+    return result;
+  }
 
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
@@ -149,9 +169,13 @@ export class AuthService {
   }
 
   private async generateTokens(user: UserEntity) {
+    const accessToken = this.generateAccessTokens(user);
+    const refreshToken = this.generateRefreshToken(user);
+    console.log('accessToken:', accessToken);
+    console.log('refreshToken:', refreshToken);
     return {
-      accessToken: this.generateAccessTokens(user),
-      refreshToken: this.generateRefreshToken(user),
+      accessToken,
+      refreshToken,
     };
   }
 

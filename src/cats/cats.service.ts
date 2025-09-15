@@ -1,49 +1,59 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
-
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Cat } from './entities/cat.entity';
 
 @Injectable()
 export class CatsService {
+  constructor(
+    @InjectRepository(Cat)
+    private catRepository: Repository<Cat>,
+  ) {}
 
-  private cats = [
-    { id: 1, name: 'Whiskers', age: 3 },
-    { id: 2, name: 'Tom', age: 5 },
-    { id: 3, name: 'Felix', age: 2 },
-  ];
-
-  create(createCatDto: CreateCatDto) {
-    const newCat = { id: Date.now(), ...createCatDto };
-    this.cats.push(newCat);
-    return newCat;
+  async create(createCatDto: CreateCatDto): Promise<Cat> {
+    const cat = this.catRepository.create({
+      name: createCatDto.name,
+      age: createCatDto.age,
+    });
+    return this.catRepository.save(cat);
   }
 
-  findAll() {
-    return this.cats;
+  async findAll() {
+    return this.catRepository.find();
   }
 
-  findOne(id: number) {
-    const cat = this.cats.find(cat => cat.id === id);
+  async findOne(id: number) {
+    const cat = await this.catRepository.findOne({
+      where: { id },
+    });
+
     if (!cat) {
-      throw new Error();
+      throw new NotFoundException(`cat is not fond wiht id ${id}`);
     }
     return cat;
   }
 
-  updateCat(id: number, updateCatDto: UpdateCatDto) {
-    const cat = this.findOne(id);
-    if(!cat){
-      throw new Error('Cat not found');
+  async updateCat(id: number, updateCatDto: UpdateCatDto) {
+    const cat = await this.findOne(id);
+    if (!cat) {
+      throw new NotFoundException(`Cat not found with ${id}`);
     }
-    Object.assign(cat, updateCatDto);
-    return cat;
+    for (const key in updateCatDto) {
+      if (updateCatDto[key] !== undefined) {
+        cat[key] = updateCatDto[key];
+      }
+
+      return this.catRepository.save(cat);
+    }
   }
 
-  removeCat(id: number) {
-    const cat = this.findOne(id);
-    if (cat) {
-      this.cats = this.cats.filter(c => c.id !== id);
+  async remove(id: number) {
+    const cat = await this.findOne(id);
+    if (!cat) {
+      throw new NotFoundException(`Cat not found with ${id}`);
     }
-    return cat;
+    return this.catRepository.remove(cat);
   }
 }

@@ -44,20 +44,15 @@ export class CatsController {
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() updateCatDto: UpdateCatDto) {
-    try {
-      return this.catsService.updateCat(+id, updateCatDto);
-    } catch (error) {
-      throw new NotFoundException('Cat not found');
-    }
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCatDto: UpdateCatDto,
+  ) {
+    return this.catsService.updateCat(id, updateCatDto);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    try {
-      return this.catsService.removeCat(+id);
-    } catch (error) {
-      throw new NotFoundException('Cat not found');
-    }
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return this.catsService.remove(id);
   }
 }

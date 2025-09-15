@@ -13,6 +13,9 @@ import appConfig from './config/app.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PostEntity } from './posts/extities/post.entity';
 import { UserEntity } from './auth/entities/user.entity';
+import { Cat } from './cats/entities/cat.entity';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -24,6 +27,21 @@ import { UserEntity } from './auth/entities/user.entity';
       // }),
       load: [appConfig],
     }),
+
+    //Rate limit
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 5,
+        },
+      ],
+    }),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 300,
+      max: 100,
+    }),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: 'localhost',
@@ -31,7 +49,7 @@ import { UserEntity } from './auth/entities/user.entity';
       username: 'root',
       password: 'Saran@1111',
       database: 'posts',
-      entities: [PostEntity, UserEntity],
+      entities: [PostEntity, UserEntity, Cat],
       synchronize: true,
     }),
     CatsModule,
